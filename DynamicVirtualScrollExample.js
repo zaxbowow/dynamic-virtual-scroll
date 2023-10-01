@@ -15,6 +15,7 @@ export class DynamicVirtualScrollExample extends React.PureComponent
             items[i] = 30 + Math.round(Math.random()*50);
         }
         this.state = { items };
+        this.prevState = [];
     }
 
     getRenderedItemHeight_MemoryExample = (index) =>
@@ -119,14 +120,26 @@ export class DynamicVirtualScrollExample extends React.PureComponent
 
     setStateIfDiffers(state, cb)
     {
+
+        var stateChangedBack = this.prevState.viewportHeight !=null;
+        for (const k in this.prevState) {
+            if (this.prevState[k] != state[k]) {
+                stateChangedBack = false;
+                break;
+            }                
+        }
+        if (stateChangedBack) return false;
+
+        var stateChanged = false;
         for (const k in state)
         {
-            if (this.state[k] != state[k])
-            {
-                this.setState(state, cb);
-                return true;
-            }
+            this.prevState[k] = this.state[k];
+            if (this.state[k] != state[k]) stateChanged = true;
         }
-        return false;
-    }
+        if (stateChanged) {
+            this.setState(state, cb);
+        }    
+        return stateChanged;
+    }   
+
 }
